@@ -4,19 +4,26 @@
   "exports": "./src/main.ts",
   "minimumDependencyAge": 0,
   "imports": {
-    "@ora-space/plugin-sdk": "jsr:@ora-space/plugin-sdk@0.3.0"
+    "@ora-space/plugin-sdk": "jsr:@ora-space/plugin-sdk@0.3.0",
+    "@opencode-ai/plugin": "npm:@opencode-ai/plugin",
+    "@types/node": "npm:@types/node"
   },
   "tasks": {
-    "check": "deno check src/main.ts tests/host-simulator.ts",
+    "check": "deno check src/main.ts src/trace/opencode-trace-logger.ts tests/host-simulator.ts",
     "lint": "deno lint src tests",
     "format": "deno fmt src tests deno.json package.json README.md",
     "simulate": "deno run --allow-run --allow-read --allow-env --allow-net tests/host-simulator.ts",
     "dev": "deno run --no-prompt --allow-run --allow-read --allow-env --allow-net src/main.ts",
-    "build": "deno bundle src/main.ts -o dist/main.js"
+    "build": "deno bundle src/main.ts -o dist/main.js",
+    "test": "deno test --allow-env --allow-sys --allow-read --allow-write src tests"
   },
   "compilerOptions": {
     "strict": true,
-    "lib": ["deno.ns", "dom", "esnext"]
+    "lib": [
+      "deno.ns",
+      "dom",
+      "esnext"
+    ]
   },
   "fmt": {
     "lineWidth": 80,
@@ -25,7 +32,9 @@
   },
   "lint": {
     "rules": {
-      "tags": ["recommended"]
+      "tags": [
+        "recommended"
+      ]
     }
   }
 }
