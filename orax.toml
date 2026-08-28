@@ -7,3 +7,10 @@ version = "0.2.2"
 description = "Ora Space OpenCode Agent"
 homepage = "https://github.com/ora-space/opencode-agent"
 license = "Apache-2.0"
+
+# The deployed trace logger writes one NDJSON file per session to the
+# opencode trace directory (XDG data dir); the host locates a session's
+# file by its agent session id.
+[agent.trace]
+format = "opencode"
+file = "{data_dir}/opencode/trace/{agent_session_id}.ndjson"
