@@ -13,6 +13,7 @@ import { forwardAcpFrame } from "./handlers/acp.ts";
 import { SkillEffectCoordinator } from "./handlers/effects.ts";
 import { startOpenCode, stopOpenCode } from "./handlers/lifecycle.ts";
 import { listOpenCodeModels } from "./handlers/models.ts";
+import { deployTraceLogger, pruneOldTraces } from "./handlers/trace.ts";
 import { OpenCodeClient } from "./services/opencode-client.ts";
 
 /** Must match `ora.id` in package.json, which is also this agent's identity inside Ora. */
@@ -51,8 +52,20 @@ class OpenCodeAgentPlugin extends AgentPlugin {
 
   override readonly effects = this.#effects.definition;
 
-  override onActivate(context: PluginContext): void {
+  override async onActivate(context: PluginContext): Promise<void> {
     console.info(`${context.pluginId} activated`);
+    // 采集器必须在 agent/start 拉起 opencode 之前就位：opencode 只在进程启动时
+    // 扫描插件目录。部署幂等（版本戳+hash），升级后重启会静默覆盖旧版本。
+    try {
+      const deployed = await deployTraceLogger();
+      const pruned = pruneOldTraces();
+      console.info(
+        `trace logger deployed at ${deployed.path} (changed=${deployed.changed}); pruned ${pruned} old traces`,
+      );
+    } catch (error) {
+      // 部署失败不阻断 agent 本体：dashboard 侧只会读不到 trace。
+      console.warn(`trace logger deployment failed: ${error}`);
+    }
   }
 
   override onStart = async (
